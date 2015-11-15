@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( object-recognition )
+find_package( OpenCV REQUIRED )
+add_executable( object-recognition src/main.cpp src/color_detect.cpp src/interest_points_detect.cpp )
+target_link_libraries( object-recognition ${OpenCV_LIBS} )

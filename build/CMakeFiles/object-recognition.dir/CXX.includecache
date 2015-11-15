@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/leningli/workspace/object-recognition/src/main.cpp
+opencv2/core/core.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/features2d/features2d.hpp
+/home/leningli/workspace/object-recognition/src/opencv2/features2d/features2d.hpp
+opencv2/nonfree/nonfree.hpp
+/home/leningli/workspace/object-recognition/src/opencv2/nonfree/nonfree.hpp
+opencv2/imgproc/imgproc.hpp
+/home/leningli/workspace/object-recognition/src/opencv2/imgproc/imgproc.hpp
+iostream
+-
+
