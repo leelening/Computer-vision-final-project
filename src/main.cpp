@@ -118,8 +118,8 @@ static void goodMatchingPoints(cv::Mat descriptors_1 , cv::Mat descriptors_2, st
 int interest_points_detect()
 {
     cv::Mat img_1, img_2;
-    img_1 = cv::imread("/home/leningli/workspace/object-recognition/images/1.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
-    img_2 = cv::imread("/home/leningli/workspace/object-recognition/images/2.jpg", CV_LOAD_IMAGE_COLOR);
+    img_1 = cv::imread("../images/1.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+    img_2 = cv::imread("../images/2.jpg", CV_LOAD_IMAGE_COLOR);
 
     if((! img_1.data) || ( ! img_2.data) )                              // Check for invalid input
     {
@@ -140,10 +140,10 @@ int interest_points_detect()
     drawKeypoints( img_1, keypoints_1, img_keypoints_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
     drawKeypoints( img_2, keypoints_2, img_keypoints_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
 
-    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
-    cv::imshow("Keypoints of image 1", img_keypoints_1);
-    cv::namedWindow("Keypoints of image 2", cv::WINDOW_AUTOSIZE);
-    cv::imshow("Keypoints of image 2", img_keypoints_2);
+//    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
+//    cv::imshow("Keypoints of image 1", img_keypoints_1);
+//    cv::namedWindow("Keypoints of image 2", cv::WINDOW_AUTOSIZE);
+//    cv::imshow("Keypoints of image 2", img_keypoints_2);
 
     //-- Step 2: Calculate descriptors (feature vectors)
     cv::SurfDescriptorExtractor extractor;
@@ -245,7 +245,7 @@ bool refineMatchesWithHomography(
 int interest_points_video_detect()
 {
     cv::Mat img_1;
-    img_1 = cv::imread("/home/leningli/workspace/object-recognition/images/4.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+    img_1 = cv::imread("../images/5.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
 
     cv::VideoCapture cap(0);                                    //capture the video from web cam
 
@@ -272,7 +272,7 @@ int interest_points_video_detect()
 
     drawKeypoints( img_1, keypoints_1, img_keypoints_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
 
-    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
+//    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
 
     //-- Step 2: Calculate descriptors (feature vectors)
     cv::SurfDescriptorExtractor extractor;
@@ -300,7 +300,7 @@ int interest_points_video_detect()
 
         detector.detect( imgOriginal, keypoints_2);
         drawKeypoints( imgOriginal, keypoints_2, img_keypoints_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
-        cv::namedWindow("Keypoints of the frame", cv::WINDOW_AUTOSIZE);
+//        cv::namedWindow("Keypoints of the frame", cv::WINDOW_AUTOSIZE);
         extractor.compute( imgOriginal, keypoints_2, descriptors_2 );
 //        matcher.match( descriptors_1, descriptors_2, matches );
 

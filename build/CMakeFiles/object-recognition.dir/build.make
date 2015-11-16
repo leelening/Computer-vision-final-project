@@ -32,10 +32,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/leningli/workspace/object-recognition
+CMAKE_SOURCE_DIR = /home/leningli/Desktop/Object-recognition
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/leningli/workspace/object-recognition/build
+CMAKE_BINARY_DIR = /home/leningli/Desktop/Object-recognition/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/object-recognition.dir/depend.make
@@ -48,17 +48,17 @@ include CMakeFiles/object-recognition.dir/flags.make
 
 CMakeFiles/object-recognition.dir/src/main.cpp.o: CMakeFiles/object-recognition.dir/flags.make
 CMakeFiles/object-recognition.dir/src/main.cpp.o: ../src/main.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/workspace/object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/object-recognition.dir/src/main.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/main.cpp.o -c /home/leningli/workspace/object-recognition/src/main.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/main.cpp.o -c /home/leningli/Desktop/Object-recognition/src/main.cpp
 
 CMakeFiles/object-recognition.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/object-recognition.dir/src/main.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/workspace/object-recognition/src/main.cpp > CMakeFiles/object-recognition.dir/src/main.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/Desktop/Object-recognition/src/main.cpp > CMakeFiles/object-recognition.dir/src/main.cpp.i
 
 CMakeFiles/object-recognition.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/object-recognition.dir/src/main.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/workspace/object-recognition/src/main.cpp -o CMakeFiles/object-recognition.dir/src/main.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/Desktop/Object-recognition/src/main.cpp -o CMakeFiles/object-recognition.dir/src/main.cpp.s
 
 CMakeFiles/object-recognition.dir/src/main.cpp.o.requires:
 .PHONY : CMakeFiles/object-recognition.dir/src/main.cpp.o.requires
@@ -71,17 +71,17 @@ CMakeFiles/object-recognition.dir/src/main.cpp.o.provides.build: CMakeFiles/obje
 
 CMakeFiles/object-recognition.dir/src/color_detect.cpp.o: CMakeFiles/object-recognition.dir/flags.make
 CMakeFiles/object-recognition.dir/src/color_detect.cpp.o: ../src/color_detect.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/workspace/object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/object-recognition.dir/src/color_detect.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.o -c /home/leningli/workspace/object-recognition/src/color_detect.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.o -c /home/leningli/Desktop/Object-recognition/src/color_detect.cpp
 
 CMakeFiles/object-recognition.dir/src/color_detect.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/object-recognition.dir/src/color_detect.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/workspace/object-recognition/src/color_detect.cpp > CMakeFiles/object-recognition.dir/src/color_detect.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/Desktop/Object-recognition/src/color_detect.cpp > CMakeFiles/object-recognition.dir/src/color_detect.cpp.i
 
 CMakeFiles/object-recognition.dir/src/color_detect.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/object-recognition.dir/src/color_detect.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/workspace/object-recognition/src/color_detect.cpp -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/Desktop/Object-recognition/src/color_detect.cpp -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.s
 
 CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires:
 .PHONY : CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires
@@ -94,17 +94,17 @@ CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.provides.build: CMakeFi
 
 CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o: CMakeFiles/object-recognition.dir/flags.make
 CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o: ../src/interest_points_detect.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/workspace/object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o -c /home/leningli/workspace/object-recognition/src/interest_points_detect.cpp
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o -c /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp
 
 CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/workspace/object-recognition/src/interest_points_detect.cpp > CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp > CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i
 
 CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/workspace/object-recognition/src/interest_points_detect.cpp -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s
 
 CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires:
 .PHONY : CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires
@@ -179,6 +179,6 @@ CMakeFiles/object-recognition.dir/clean:
 .PHONY : CMakeFiles/object-recognition.dir/clean
 
 CMakeFiles/object-recognition.dir/depend:
-	cd /home/leningli/workspace/object-recognition/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/leningli/workspace/object-recognition /home/leningli/workspace/object-recognition /home/leningli/workspace/object-recognition/build /home/leningli/workspace/object-recognition/build /home/leningli/workspace/object-recognition/build/CMakeFiles/object-recognition.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/leningli/Desktop/Object-recognition/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/leningli/Desktop/Object-recognition /home/leningli/Desktop/Object-recognition /home/leningli/Desktop/Object-recognition/build /home/leningli/Desktop/Object-recognition/build /home/leningli/Desktop/Object-recognition/build/CMakeFiles/object-recognition.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/object-recognition.dir/depend
 

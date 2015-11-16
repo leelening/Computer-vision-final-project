@@ -1,1 +1,1 @@
-/home/leningli/workspace/object-recognition/build/CMakeFiles/object-recognition.dir
+/home/leningli/Desktop/Object-recognition/build/CMakeFiles/object-recognition.dir
