@@ -13,7 +13,86 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 
-void color_detect( )
+/// Global variables
+
+cv::Mat src, src_gray;
+cv::Mat dst, detected_edges;
+
+int edgeThresh = 1;
+int lowThreshold;
+int const max_lowThreshold = 100;
+int ratio = 3;
+int kernel_size = 3;
+char* window_name = "Edge Map";
+
+/**
+ * @function CannyThreshold
+ * @brief Trackbar callback - Canny thresholds input with a ratio 1:3
+ */
+void CannyThreshold(int, void*)
+{
+  /// Reduce noise with a kernel 3x3
+  cv::blur( src_gray, detected_edges, cv::Size(3,3) );
+
+  /// Canny detector
+  cv::Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size );
+
+  /// Using Canny's output as a mask, we display our result
+  dst = cv::Scalar::all(0);
+
+  src.copyTo( dst, detected_edges);
+  cv::imshow( window_name, dst );
+ }
+
+void cannyEdgeDetect()
+{
+    cv::VideoCapture cap(0);                                    //capture the video from web cam
+
+    if ( !cap.isOpened() )                                      // if not success, exit program
+    {
+         std::cout << "Cannot open the web cam" << std::endl;
+         return;
+    }
+
+    // Load input image
+
+    while(true)
+    {
+
+        bool bSuccess = cap.read(src);                    // read a new frame from video
+
+         if (!bSuccess)                                         //if not success, break loop
+        {
+             std::cout << "Cannot read a frame from video stream" << std::endl;
+             break;
+         }
+
+     /// Create a matrix of the same type and size as src (for dst)
+     dst.create( src.size(), src.type() );
+
+     /// Convert the image to grayscale
+     cv::cvtColor( src, src_gray, CV_BGR2GRAY );
+
+     /// Create a window
+     cv::namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+
+     /// Create a Trackbar for user to enter threshold
+     cv::createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
+
+     /// Show the image
+     CannyThreshold(0, 0);
+
+     if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+     {
+         std::cout << "esc key is pressed by user" << std::endl;
+         break;
+     }
+ }
+
+}
+
+
+void colorDetect( )
 {
     cv::VideoCapture cap(0);                                    //capture the video from web cam
 
@@ -54,7 +133,6 @@ void color_detect( )
         cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_black_hue_range);
         cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_black_hue_range);
 
-
         // Combine the above two images
         cv::Mat black_hue_image;
         cv::addWeighted(lower_black_hue_range, 1.0, upper_black_hue_range, 1.0, 0.0, black_hue_image);
@@ -66,7 +144,7 @@ void color_detect( )
         cv::HoughCircles(black_hue_image, circles, CV_HOUGH_GRADIENT, 1, black_hue_image.rows/8, 100, 20, 0, 0);
 
         // Loop over all detected circles and outline them on the original image
-//        if(circles.size() == 0) std::exit(-1);
+
         for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle) {
             cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
             int radius = std::round(circles[current_circle][2]);
@@ -75,13 +153,13 @@ void color_detect( )
         }
 
         // Show images
-//        cv::namedWindow("Threshold lower image", cv::WINDOW_AUTOSIZE);
-//        cv::imshow("Threshold lower image", lower_black_hue_range);
-//        cv::namedWindow("Threshold upper image", cv::WINDOW_AUTOSIZE);
-//        cv::imshow("Threshold upper image", upper_black_hue_range);
-//        cv::namedWindow("Combined threshold images", cv::WINDOW_AUTOSIZE);
-//        cv::imshow("Combined threshold images", black_hue_image);
-//        cv::namedWindow("Detected black circles on the input image", cv::WINDOW_AUTOSIZE);
+        cv::namedWindow("Threshold lower image", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Threshold lower image", lower_black_hue_range);
+        cv::namedWindow("Threshold upper image", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Threshold upper image", upper_black_hue_range);
+        cv::namedWindow("Combined threshold images", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Combined threshold images", black_hue_image);
+        cv::namedWindow("Detected black circles on the input image", cv::WINDOW_AUTOSIZE);
         cv::imshow("Detected black circles on the input image", orig_image);
 
         if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
@@ -123,63 +201,63 @@ static void goodMatchingPoints(cv::Mat descriptors_1 , cv::Mat descriptors_2, st
 //    matcher.radiusMatch(descriptors_2, descriptors_1, good_matches, 10 );
 }
 
-int interest_points_detect()
-{
-    cv::Mat img_1, img_2;
-    img_1 = cv::imread("../images/1.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
-    img_2 = cv::imread("../images/2.jpg", CV_LOAD_IMAGE_COLOR);
+//int interestPointsDetect()
+//{
+//    cv::Mat img_1, img_2;
+//    img_1 = cv::imread("../images/1.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
+//    img_2 = cv::imread("../images/2.jpg", CV_LOAD_IMAGE_COLOR);
 
-    if((! img_1.data) || ( ! img_2.data) )                              // Check for invalid input
-    {
-        std::cout <<  "Could not open or find the image" << std::endl ;
-        return -1;
-    }
+//    if((! img_1.data) || ( ! img_2.data) )                              // Check for invalid input
+//    {
+//        std::cout <<  "Could not open or find the image" << std::endl ;
+//        return -1;
+//    }
 
-    //-- Step 1: Detect the keypoints using SURF Detector
-    int minHessian = 400;
+//    //-- Step 1: Detect the keypoints using SURF Detector
+//    int minHessian = 400;
 
-    cv::SurfFeatureDetector     detector( minHessian );
-    std::vector<cv::KeyPoint>   keypoints_1, keypoints_2;
-    cv::Mat                     img_keypoints_1, img_keypoints_2;
+//    cv::SurfFeatureDetector     detector( minHessian );
+//    std::vector<cv::KeyPoint>   keypoints_1, keypoints_2;
+//    cv::Mat                     img_keypoints_1, img_keypoints_2;
 
-    detector.detect( img_1, keypoints_1 );
-    detector.detect( img_2, keypoints_2 );
+//    detector.detect( img_1, keypoints_1 );
+//    detector.detect( img_2, keypoints_2 );
 
-    drawKeypoints( img_1, keypoints_1, img_keypoints_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
-    drawKeypoints( img_2, keypoints_2, img_keypoints_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
+//    drawKeypoints( img_1, keypoints_1, img_keypoints_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
+//    drawKeypoints( img_2, keypoints_2, img_keypoints_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
 
-//    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
-//    cv::imshow("Keypoints of image 1", img_keypoints_1);
-//    cv::namedWindow("Keypoints of image 2", cv::WINDOW_AUTOSIZE);
-//    cv::imshow("Keypoints of image 2", img_keypoints_2);
+////    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
+////    cv::imshow("Keypoints of image 1", img_keypoints_1);
+////    cv::namedWindow("Keypoints of image 2", cv::WINDOW_AUTOSIZE);
+////    cv::imshow("Keypoints of image 2", img_keypoints_2);
 
-    //-- Step 2: Calculate descriptors (feature vectors)
-    cv::SurfDescriptorExtractor extractor;
-    cv::Mat                     descriptors_1 , descriptors_2;
+//    //-- Step 2: Calculate descriptors (feature vectors)
+//    cv::SurfDescriptorExtractor extractor;
+//    cv::Mat                     descriptors_1 , descriptors_2;
 
-    extractor.compute( img_1, keypoints_1, descriptors_1 );
-    extractor.compute( img_2, keypoints_2, descriptors_2 );
+//    extractor.compute( img_1, keypoints_1, descriptors_1 );
+//    extractor.compute( img_2, keypoints_2, descriptors_2 );
 
-    //-- Step 3: Matching descriptor vectors with a brute force matcher
-    cv::BFMatcher               matcher(cv::NORM_L2);
-    std::vector<cv::DMatch>     matches;
-    std::vector<cv::DMatch>     good_matches;
-    matcher.match( descriptors_1, descriptors_2, matches );
+//    //-- Step 3: Matching descriptor vectors with a brute force matcher
+//    cv::BFMatcher               matcher(cv::NORM_L2);
+//    std::vector<cv::DMatch>     matches;
+//    std::vector<cv::DMatch>     good_matches;
+//    matcher.match( descriptors_1, descriptors_2, matches );
 
-    goodMatchingPoints(descriptors_1, descriptors_2, matches, good_matches);
+//    goodMatchingPoints(descriptors_1, descriptors_2, matches, good_matches);
 
-    //-- Draw only "good" matches
-    cv::Mat img_matches;
-    cv::drawMatches(img_1, keypoints_1, img_2, keypoints_2, good_matches,
-            img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
-            cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+//    //-- Draw only "good" matches
+//    cv::Mat img_matches;
+//    cv::drawMatches(img_1, keypoints_1, img_2, keypoints_2, good_matches,
+//            img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
+//            cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-    //-- Show detected matches
-    cv::imshow("Good Matches", img_matches);
+//    //-- Show detected matches
+//    cv::imshow("Good Matches", img_matches);
 
-    cv::waitKey(0);                                          // Wait for a keystroke in the window
-    return 0;
-}
+//    cv::waitKey(0);                                          // Wait for a keystroke in the window
+//    return 0;
+//}
 
 void getMatches(cv::BFMatcher &m_matcher, const cv::Mat &trainDescriptors, const cv::Mat& queryDescriptors,  std::vector<cv::DMatch>& good_matches)
 {
@@ -250,7 +328,7 @@ bool refineMatchesWithHomography(
     return matches.size() > minNumberMatchesAllowed;
 }
 
-int interest_points_video_detect()
+int interestPointsVideoDetect()
 {
     cv::Mat img_1;
     img_1 = cv::imread("../images/5.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
@@ -340,28 +418,9 @@ int interest_points_video_detect()
 }
 
 int main(){
-//    interest_points_video_detect();
-    color_detect();
+//    interestPointsVideoDetect();
+//    colorDetect();
+    cannyEdgeDetect();
 }
 
-//3 General Steps for Object Recognition
-//1. Interest Point Detection
-//2. Interest Point Description Feature Vector Extraction
-//3. Feature Vector Matching Between Two Images
-
-//Load training image
-//Detect training interest points
-//Extract training interest point descriptors
-//Initailize match object
-//Initialize and open camera feed
-//While(Not User Exit)
-//    Grab video frame
-//    Detect interest points
-//    Extract descriptors
-//    Match Query points with training points
-//    If(Matching Points > Threshold)
-//        Compute Homography Transform Box
-//        Draw Box Object and Display
-//    Else
-//End While
 
