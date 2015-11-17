@@ -13,42 +13,23 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 
-int color_detect( )
+void color_detect( )
 {
     cv::VideoCapture cap(0);                                    //capture the video from web cam
 
     if ( !cap.isOpened() )                                      // if not success, exit program
     {
          std::cout << "Cannot open the web cam" << std::endl;
-         return -1;
+         return;
     }
 
-    cv::namedWindow("Control", CV_WINDOW_AUTOSIZE);             //create a window called "Control"
+    // Load input image
 
-    int iLowH = 0;
-    int iHighH = 179;
-
-    int iLowS = 0;
-    int iHighS = 255;
-
-    int iLowV = 0;
-    int iHighV = 255;
-
-    //Create trackbars in "Control" window
-    cvCreateTrackbar("LowH", "Control", &iLowH, 179);           //Hue (0 - 179)
-    cvCreateTrackbar("HighH", "Control", &iHighH, 179);
-
-    cvCreateTrackbar("LowS", "Control", &iLowS, 255);           //Saturation (0 - 255)
-    cvCreateTrackbar("HighS", "Control", &iHighS, 255);
-
-    cvCreateTrackbar("LowV", "Control", &iLowV, 255);           //Value (0 - 255)
-    cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-
-    while (true)
+    while(true)
     {
-        cv::Mat imgOriginal;
+        cv::Mat bgr_image;
 
-        bool bSuccess = cap.read(imgOriginal);                  // read a new frame from video
+        bool bSuccess = cap.read(bgr_image);                    // read a new frame from video
 
          if (!bSuccess)                                         //if not success, break loop
         {
@@ -56,24 +37,52 @@ int color_detect( )
              break;
         }
 
-        cv::Mat imgHSV;
+        // Check if the image can be loaded
+        //check_if_image_exist(bgr_image, path_image);
 
-        cv::cvtColor(imgOriginal, imgHSV, cv::COLOR_BGR2HSV);       //Convert the captured frame from BGR to HSV
+        cv::Mat orig_image = bgr_image.clone();
 
-        cv::Mat imgThresholded;
+        cv::medianBlur(bgr_image, bgr_image, 3);
 
-        cv::inRange(imgHSV, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
+        // Convert input image to HSV
+        cv::Mat hsv_image;
+        cv::cvtColor(bgr_image, hsv_image, cv::COLOR_BGR2HSV);
 
-        //morphological opening (remove small objects from the foreground)
-        cv::erode(imgThresholded, imgThresholded, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
-        cv::dilate( imgThresholded, imgThresholded, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
+        // Threshold the HSV image, keep only the black pixels
+        cv::Mat lower_black_hue_range;
+        cv::Mat upper_black_hue_range;
+        cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_black_hue_range);
+        cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_black_hue_range);
 
-        //morphological closing (fill small holes in the foreground)
-        cv::dilate( imgThresholded, imgThresholded, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
-        cv::erode(imgThresholded, imgThresholded, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)) );
 
-        cv::imshow("Thresholded Image", imgThresholded); //show the thresholded image
-        cv::imshow("Original", imgOriginal); //show the original image
+        // Combine the above two images
+        cv::Mat black_hue_image;
+        cv::addWeighted(lower_black_hue_range, 1.0, upper_black_hue_range, 1.0, 0.0, black_hue_image);
+
+        cv::GaussianBlur(black_hue_image, black_hue_image, cv::Size(9, 9), 2, 2);
+
+        // Use the Hough transform to detect circles in the combined threshold image
+        std::vector<cv::Vec3f> circles;
+        cv::HoughCircles(black_hue_image, circles, CV_HOUGH_GRADIENT, 1, black_hue_image.rows/8, 100, 20, 0, 0);
+
+        // Loop over all detected circles and outline them on the original image
+//        if(circles.size() == 0) std::exit(-1);
+        for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle) {
+            cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
+            int radius = std::round(circles[current_circle][2]);
+
+            cv::circle(orig_image, center, radius, cv::Scalar(0, 255, 0), 5);
+        }
+
+        // Show images
+//        cv::namedWindow("Threshold lower image", cv::WINDOW_AUTOSIZE);
+//        cv::imshow("Threshold lower image", lower_black_hue_range);
+//        cv::namedWindow("Threshold upper image", cv::WINDOW_AUTOSIZE);
+//        cv::imshow("Threshold upper image", upper_black_hue_range);
+//        cv::namedWindow("Combined threshold images", cv::WINDOW_AUTOSIZE);
+//        cv::imshow("Combined threshold images", black_hue_image);
+//        cv::namedWindow("Detected black circles on the input image", cv::WINDOW_AUTOSIZE);
+        cv::imshow("Detected black circles on the input image", orig_image);
 
         if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
         {
@@ -82,7 +91,6 @@ int color_detect( )
         }
     }
 
-    return 0;
 }
 
 static void goodMatchingPoints(cv::Mat descriptors_1 , cv::Mat descriptors_2, std::vector<cv::DMatch>& matches, std::vector<cv::DMatch>& good_matches )
@@ -201,7 +209,7 @@ void getMatches(cv::BFMatcher &m_matcher, const cv::Mat &trainDescriptors, const
 }
 
 void KeyPointsToPoints(std::vector<cv::KeyPoint> kpts, std::vector<cv::Point2f> &pts) {
-    for (int i = 0; i < kpts.size(); i++) {
+    for (unsigned i = 0; i < kpts.size(); i++) {
         pts.push_back(kpts[i].pt);
     }
 
@@ -213,7 +221,7 @@ bool refineMatchesWithHomography(
         const std::vector<cv::KeyPoint>& trainKeypoints,
         float reprojectionThreshold, std::vector<cv::DMatch>& matches,
         cv::Mat& homography) {
-    const int minNumberMatchesAllowed = 8;
+    const unsigned minNumberMatchesAllowed = 8;
 
     if (matches.size() < minNumberMatchesAllowed)
         return false;
@@ -332,7 +340,8 @@ int interest_points_video_detect()
 }
 
 int main(){
-    interest_points_video_detect();
+//    interest_points_video_detect();
+    color_detect();
 }
 
 //3 General Steps for Object Recognition
