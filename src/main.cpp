@@ -201,64 +201,6 @@ static void goodMatchingPoints(cv::Mat descriptors_1 , cv::Mat descriptors_2, st
 //    matcher.radiusMatch(descriptors_2, descriptors_1, good_matches, 10 );
 }
 
-//int interestPointsDetect()
-//{
-//    cv::Mat img_1, img_2;
-//    img_1 = cv::imread("../images/1.jpg", CV_LOAD_IMAGE_COLOR);   // Read the file
-//    img_2 = cv::imread("../images/2.jpg", CV_LOAD_IMAGE_COLOR);
-
-//    if((! img_1.data) || ( ! img_2.data) )                              // Check for invalid input
-//    {
-//        std::cout <<  "Could not open or find the image" << std::endl ;
-//        return -1;
-//    }
-
-//    //-- Step 1: Detect the keypoints using SURF Detector
-//    int minHessian = 400;
-
-//    cv::SurfFeatureDetector     detector( minHessian );
-//    std::vector<cv::KeyPoint>   keypoints_1, keypoints_2;
-//    cv::Mat                     img_keypoints_1, img_keypoints_2;
-
-//    detector.detect( img_1, keypoints_1 );
-//    detector.detect( img_2, keypoints_2 );
-
-//    drawKeypoints( img_1, keypoints_1, img_keypoints_1, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
-//    drawKeypoints( img_2, keypoints_2, img_keypoints_2, cv::Scalar::all(-1), cv::DrawMatchesFlags::DEFAULT );
-
-////    cv::namedWindow("Keypoints of image 1", cv::WINDOW_AUTOSIZE);
-////    cv::imshow("Keypoints of image 1", img_keypoints_1);
-////    cv::namedWindow("Keypoints of image 2", cv::WINDOW_AUTOSIZE);
-////    cv::imshow("Keypoints of image 2", img_keypoints_2);
-
-//    //-- Step 2: Calculate descriptors (feature vectors)
-//    cv::SurfDescriptorExtractor extractor;
-//    cv::Mat                     descriptors_1 , descriptors_2;
-
-//    extractor.compute( img_1, keypoints_1, descriptors_1 );
-//    extractor.compute( img_2, keypoints_2, descriptors_2 );
-
-//    //-- Step 3: Matching descriptor vectors with a brute force matcher
-//    cv::BFMatcher               matcher(cv::NORM_L2);
-//    std::vector<cv::DMatch>     matches;
-//    std::vector<cv::DMatch>     good_matches;
-//    matcher.match( descriptors_1, descriptors_2, matches );
-
-//    goodMatchingPoints(descriptors_1, descriptors_2, matches, good_matches);
-
-//    //-- Draw only "good" matches
-//    cv::Mat img_matches;
-//    cv::drawMatches(img_1, keypoints_1, img_2, keypoints_2, good_matches,
-//            img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(),
-//            cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-
-//    //-- Show detected matches
-//    cv::imshow("Good Matches", img_matches);
-
-//    cv::waitKey(0);                                          // Wait for a keystroke in the window
-//    return 0;
-//}
-
 void getMatches(cv::BFMatcher &m_matcher, const cv::Mat &trainDescriptors, const cv::Mat& queryDescriptors,  std::vector<cv::DMatch>& good_matches)
 {
     std::vector<std::vector<cv::DMatch> > m_knnMatches;
@@ -422,5 +364,6 @@ int main(){
 //    colorDetect();
     cannyEdgeDetect();
 }
+
 
 

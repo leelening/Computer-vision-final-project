@@ -69,64 +69,14 @@ CMakeFiles/object-recognition.dir/src/main.cpp.o.provides: CMakeFiles/object-rec
 
 CMakeFiles/object-recognition.dir/src/main.cpp.o.provides.build: CMakeFiles/object-recognition.dir/src/main.cpp.o
 
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.o: CMakeFiles/object-recognition.dir/flags.make
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.o: ../src/color_detect.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_2)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/object-recognition.dir/src/color_detect.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.o -c /home/leningli/Desktop/Object-recognition/src/color_detect.cpp
-
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/object-recognition.dir/src/color_detect.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/Desktop/Object-recognition/src/color_detect.cpp > CMakeFiles/object-recognition.dir/src/color_detect.cpp.i
-
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/object-recognition.dir/src/color_detect.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/Desktop/Object-recognition/src/color_detect.cpp -o CMakeFiles/object-recognition.dir/src/color_detect.cpp.s
-
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires:
-.PHONY : CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires
-
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.provides: CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.provides.build
-.PHONY : CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.provides
-
-CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.provides.build: CMakeFiles/object-recognition.dir/src/color_detect.cpp.o
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o: CMakeFiles/object-recognition.dir/flags.make
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o: ../src/interest_points_detect.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles $(CMAKE_PROGRESS_3)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o -c /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp > CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/leningli/Desktop/Object-recognition/src/interest_points_detect.cpp -o CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires:
-.PHONY : CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.provides: CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.provides.build
-.PHONY : CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.provides
-
-CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.provides.build: CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o
-
 # Object files for target object-recognition
 object__recognition_OBJECTS = \
-"CMakeFiles/object-recognition.dir/src/main.cpp.o" \
-"CMakeFiles/object-recognition.dir/src/color_detect.cpp.o" \
-"CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o"
+"CMakeFiles/object-recognition.dir/src/main.cpp.o"
 
 # External object files for target object-recognition
 object__recognition_EXTERNAL_OBJECTS =
 
 object-recognition: CMakeFiles/object-recognition.dir/src/main.cpp.o
-object-recognition: CMakeFiles/object-recognition.dir/src/color_detect.cpp.o
-object-recognition: CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o
 object-recognition: /opt/ros/hydro/lib/libopencv_videostab.so.2.4.9
 object-recognition: /opt/ros/hydro/lib/libopencv_video.so.2.4.9
 object-recognition: /opt/ros/hydro/lib/libopencv_ts.a
@@ -170,8 +120,6 @@ CMakeFiles/object-recognition.dir/build: object-recognition
 .PHONY : CMakeFiles/object-recognition.dir/build
 
 CMakeFiles/object-recognition.dir/requires: CMakeFiles/object-recognition.dir/src/main.cpp.o.requires
-CMakeFiles/object-recognition.dir/requires: CMakeFiles/object-recognition.dir/src/color_detect.cpp.o.requires
-CMakeFiles/object-recognition.dir/requires: CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o.requires
 .PHONY : CMakeFiles/object-recognition.dir/requires
 
 CMakeFiles/object-recognition.dir/clean:

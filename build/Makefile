@@ -108,54 +108,6 @@ object-recognition/fast:
 	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/build
 .PHONY : object-recognition/fast
 
-src/color_detect.o: src/color_detect.cpp.o
-.PHONY : src/color_detect.o
-
-# target to build an object file
-src/color_detect.cpp.o:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/color_detect.cpp.o
-.PHONY : src/color_detect.cpp.o
-
-src/color_detect.i: src/color_detect.cpp.i
-.PHONY : src/color_detect.i
-
-# target to preprocess a source file
-src/color_detect.cpp.i:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/color_detect.cpp.i
-.PHONY : src/color_detect.cpp.i
-
-src/color_detect.s: src/color_detect.cpp.s
-.PHONY : src/color_detect.s
-
-# target to generate assembly for a file
-src/color_detect.cpp.s:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/color_detect.cpp.s
-.PHONY : src/color_detect.cpp.s
-
-src/interest_points_detect.o: src/interest_points_detect.cpp.o
-.PHONY : src/interest_points_detect.o
-
-# target to build an object file
-src/interest_points_detect.cpp.o:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.o
-.PHONY : src/interest_points_detect.cpp.o
-
-src/interest_points_detect.i: src/interest_points_detect.cpp.i
-.PHONY : src/interest_points_detect.i
-
-# target to preprocess a source file
-src/interest_points_detect.cpp.i:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.i
-.PHONY : src/interest_points_detect.cpp.i
-
-src/interest_points_detect.s: src/interest_points_detect.cpp.s
-.PHONY : src/interest_points_detect.s
-
-# target to generate assembly for a file
-src/interest_points_detect.cpp.s:
-	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/src/interest_points_detect.cpp.s
-.PHONY : src/interest_points_detect.cpp.s
-
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -189,12 +141,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... object-recognition"
 	@echo "... rebuild_cache"
-	@echo "... src/color_detect.o"
-	@echo "... src/color_detect.i"
-	@echo "... src/color_detect.s"
-	@echo "... src/interest_points_detect.o"
-	@echo "... src/interest_points_detect.i"
-	@echo "... src/interest_points_detect.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

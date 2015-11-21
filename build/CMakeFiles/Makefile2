@@ -56,7 +56,7 @@ CMAKE_BINARY_DIR = /home/leningli/Desktop/Object-recognition/build
 CMakeFiles/object-recognition.dir/all:
 	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/depend
 	$(MAKE) -f CMakeFiles/object-recognition.dir/build.make CMakeFiles/object-recognition.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles  1 2 3
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/leningli/Desktop/Object-recognition/build/CMakeFiles  1
 	@echo "Built target object-recognition"
 .PHONY : CMakeFiles/object-recognition.dir/all
 
@@ -66,7 +66,7 @@ all: CMakeFiles/object-recognition.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/object-recognition.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/leningli/Desktop/Object-recognition/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/leningli/Desktop/Object-recognition/build/CMakeFiles 1
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/object-recognition.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/leningli/Desktop/Object-recognition/build/CMakeFiles 0
 .PHONY : CMakeFiles/object-recognition.dir/rule
