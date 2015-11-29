@@ -672,7 +672,7 @@ static void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,
         }
 }
 
-int opticialFlow()
+int opticalFlow()
 {
 //    // The change in position of the camera
 //    float dx, dy;
@@ -861,7 +861,7 @@ int main(){
 //    interestPointsVideoDetect();
 //    colorDetect();
 //    cannyEdgeDetect();
-    opticialFlow();
+    opticalFlow();
 }
 
 
