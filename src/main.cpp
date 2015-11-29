@@ -13,6 +13,10 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 
+#define MAX_COUNT 250
+#define DELAY_T 20
+#define PI 3.1415
+
 /// Global variables
 
 cv::Mat src, src_gray;
@@ -359,10 +363,505 @@ int interestPointsVideoDetect()
     return 0;
 }
 
+//void opticialFlow()
+//{
+//    //////////////////////////////////////////////////////////////////////////
+//     //image class
+//     IplImage* image = 0;
+
+//     //T, T-1 image
+//     IplImage* current_Img = 0;
+//     IplImage* Old_Img = 0;
+
+//     //Optical Image
+//     IplImage * imgA=0;
+//     IplImage * imgB=0;
+
+
+//     //Video Load
+//     CvCapture * capture = cvCreateFileCapture("../images/test.mp4"); //cvCaptureFromCAM(0); //cvCreateFileCapture("1.avi");
+
+//     //Window
+//     cvNamedWindow( "Origin" );
+//     //////////////////////////////////////////////////////////////////////////
+
+
+//     //////////////////////////////////////////////////////////////////////////
+//     //Optical Flow Variables
+//     IplImage * eig_image=0;
+//     IplImage * tmp_image=0;
+//     int corner_count = MAX_COUNT;
+//     CvPoint2D32f* cornersA = new CvPoint2D32f[ MAX_COUNT ];
+//     CvPoint2D32f * cornersB = new CvPoint2D32f[ MAX_COUNT ];
+
+//     CvSize img_sz;
+//     int win_size=20;
+
+//     IplImage* pyrA=0;
+//     IplImage* pyrB=0;
+
+//     char features_found[ MAX_COUNT ];
+//     float feature_errors[ MAX_COUNT ];
+//     //////////////////////////////////////////////////////////////////////////
+
+
+//     //////////////////////////////////////////////////////////////////////////
+//     //Variables for time different video
+//     int one_zero=0;
+//     int t_delay=0;
+
+
+
+//     //Routine Start
+//     while(1) {
+
+
+//      //capture a frame form cam
+//      if( cvGrabFrame( capture ) == 0 )
+//       break;
+
+//      //Image Create
+//      if(Old_Img == 0)
+//      {
+//       image = cvRetrieveFrame( capture );
+//       current_Img = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
+//       Old_Img  = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
+
+
+
+//      }
+
+
+
+//      if(one_zero == 0 )
+//      {
+//       if(eig_image == 0)
+//       {
+//        eig_image = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
+//        tmp_image = cvCreateImage(cvSize(image->width, image->height), image->depth, image->nChannels);
+//       }
+
+//       //copy to image class
+//       memcpy(Old_Img->imageData, current_Img->imageData, sizeof(char)*image->imageSize );
+//       image = cvRetrieveFrame( capture );
+//       memcpy(current_Img->imageData, image->imageData, sizeof(char)*image->imageSize );
+
+//       //////////////////////////////////////////////////////////////////////////
+//       //Create image for Optical flow
+//       if(imgA == 0)
+//       {
+//        imgA = cvCreateImage( cvSize(image->width, image->height), IPL_DEPTH_8U, 1);
+//        imgB = cvCreateImage( cvSize(image->width, image->height), IPL_DEPTH_8U, 1);
+//       }
+
+//       //RGB to Gray for Optical Flow
+//       cvCvtColor(current_Img, imgA, CV_BGR2GRAY);
+//       cvCvtColor(Old_Img, imgB, CV_BGR2GRAY);
+
+//       //
+//       cvGoodFeaturesToTrack(imgA, eig_image, tmp_image, cornersA, &corner_count, 0.01, 5.0, 0, 3, 0, 0.04);
+//       cvFindCornerSubPix(imgA, cornersA, corner_count, cvSize(win_size, win_size), cvSize(-1, -1), cvTermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS, 20, 0.03));
+
+
+//       CvSize pyr_sz = cvSize( imgA->width+8, imgB->height/3 );
+//       if( pyrA == 0)
+//       {
+//        pyrA = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1);
+//        pyrB = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1);
+//       }
+
+//       cvCalcOpticalFlowPyrLK( imgA, imgB, pyrA, pyrB, cornersA, cornersB, corner_count, cvSize(win_size, win_size), 5, features_found, feature_errors, cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.3), 0);
+
+//       /////////////////////////////////////////////////////////////////////////
+
+//       for(int i=0; i< corner_count; ++i)
+//       {
+
+//        if( features_found[i] == 0 || feature_errors[i] > MAX_COUNT )
+//         continue;
+
+
+
+//        //////////////////////////////////////////////////////////////////////////
+//        //Vector Length
+//        float fVecLength = sqrt((float)((cornersA[i].x-cornersB[i].x)*(cornersA[i].x-cornersB[i].x)+(cornersA[i].y-cornersB[i].y)*(cornersA[i].y-cornersB[i].y)));
+//        //Vector Angle
+//        float fVecSetha  = fabs( atan2((float)(cornersB[i].y-cornersA[i].y), (float)(cornersB[i].x-cornersA[i].x)) * 180/PI );
+
+//        cvLine( image, cvPoint(cornersA[i].x, cornersA[i].y), cvPoint(cornersB[i].x, cornersA[i].y), CV_RGB(0, 255, 0), 2);
+
+//        printf("[%d] - Sheta:%lf, Length:%lf\n",i , fVecSetha, fVecLength);
+//       }
+
+
+//       //////////////////////////////////////////////////////////////////////////
+
+//      }
+//      cvShowImage( "Origin", image );
+
+//      //////////////////////////////////////////////////////////////////////////
+
+//      //time delay
+//    one_zero++;
+//      if( (one_zero % DELAY_T ) == 0)
+//      {
+//       one_zero=0;
+//      }
+
+//      //break
+//      if( cvWaitKey(10) >= 0 )
+//       break;
+//     }
+
+//     //release capture point
+//     cvReleaseCapture(&capture);
+//     //close the window
+//     cvDestroyWindow( "Origin" );
+
+//     cvReleaseImage(&Old_Img);
+//     //////////////////////////////////////////////////////////////////////////
+//     cvReleaseImage(&imgA);
+//     cvReleaseImage(&imgB);
+//     cvReleaseImage(&eig_image);
+//     cvReleaseImage(&tmp_image);
+//     delete cornersA;
+//     delete cornersB;
+//     cvReleaseImage(&pyrA);
+//     cvReleaseImage(&pyrB);
+
+
+//     //////////////////////////////////////////////////////////////////////////
+//}
+using namespace cv;
+using namespace std;
+
+// General settings
+#define Z_DEPTH 133.4f // cm
+#define FOCAL_LENGTH .00342f // cm
+#define LENGTH_PER_PIXEL 0.0000049f // cm
+#define ITERATIONS_PER_SEED 5
+
+// Display settings
+// Defining "OPTFLOW_DISPLAY" (#define OPTFLOW_DISPLAY) enables graphical output for this application. This normally shouldn't be done in the source code but rather done in the IDE or Makefile as to not interfere with different build methods.
+#define OVERLAY_CIRCLE_RADIUS 5
+#define OVERLAY_COLOR_R 255
+#define OVERLAY_COLOR_B 0
+#define OVERLAY_COLOR_G 0
+
+// Shi-Tomasi settings. Used when finding the seed corners
+#define SHITOMASI_MAX_CORNERS 100
+#define SHITOMASI_QUALITY_LEVEL 0.3f
+#define SHITOMASI_MIN_DISTANCE 7
+#define SHITOMASI_BLOCK_SIZE 7
+
+// Lucas-Kanad Optical Flow settings. Used to track the seed corners until next seed.
+#define LUCASKANAD_WINDOW_SIZE_X 15
+#define LUCASKANAD_WINDOW_SIZE_Y 15
+#define LUCASKANAD_MAX_LEVEL 2
+
+const Scalar color(OVERLAY_COLOR_B, OVERLAY_COLOR_G, OVERLAY_COLOR_R);
+const double multiplier = (Z_DEPTH / FOCAL_LENGTH) * LENGTH_PER_PIXEL;
+
+#define UNKNOWN_FLOW_THRESH 1e9
+
+void makecolorwheel(vector<Scalar> &colorwheel)
+{
+    int RY = 15;
+    int YG = 6;
+    int GC = 4;
+    int CB = 11;
+    int BM = 13;
+    int MR = 6;
+
+    int i;
+
+    for (i = 0; i < RY; i++) colorwheel.push_back(Scalar(255,       255*i/RY,     0));
+    for (i = 0; i < YG; i++) colorwheel.push_back(Scalar(255-255*i/YG, 255,       0));
+    for (i = 0; i < GC; i++) colorwheel.push_back(Scalar(0,         255,      255*i/GC));
+    for (i = 0; i < CB; i++) colorwheel.push_back(Scalar(0,         255-255*i/CB, 255));
+    for (i = 0; i < BM; i++) colorwheel.push_back(Scalar(255*i/BM,      0,        255));
+    for (i = 0; i < MR; i++) colorwheel.push_back(Scalar(255,       0,        255-255*i/MR));
+}
+
+void motionToColor(Mat flow, Mat &color)
+{
+    if (color.empty())
+        color.create(flow.rows, flow.cols, CV_8UC3);
+
+    static vector<Scalar> colorwheel; //Scalar r,g,b
+    if (colorwheel.empty())
+        makecolorwheel(colorwheel);
+
+    // determine motion range:
+    float maxrad = -1;
+
+    // Find max flow to normalize fx and fy
+    for (int i= 0; i < flow.rows; ++i)
+    {
+        for (int j = 0; j < flow.cols; ++j)
+        {
+            Vec2f flow_at_point = flow.at<Vec2f>(i, j);
+            float fx = flow_at_point[0];
+            float fy = flow_at_point[1];
+            if ((fabs(fx) >  UNKNOWN_FLOW_THRESH) || (fabs(fy) >  UNKNOWN_FLOW_THRESH))
+                continue;
+            float rad = sqrt(fx * fx + fy * fy);
+            maxrad = maxrad > rad ? maxrad : rad;
+        }
+    }
+
+    for (int i= 0; i < flow.rows; ++i)
+    {
+        for (int j = 0; j < flow.cols; ++j)
+        {
+            uchar *data = color.data + color.step[0] * i + color.step[1] * j;
+            Vec2f flow_at_point = flow.at<Vec2f>(i, j);
+
+            float fx = flow_at_point[0] / maxrad;
+            float fy = flow_at_point[1] / maxrad;
+            if ((fabs(fx) >  UNKNOWN_FLOW_THRESH) || (fabs(fy) >  UNKNOWN_FLOW_THRESH))
+            {
+                data[0] = data[1] = data[2] = 0;
+                continue;
+            }
+            float rad = sqrt(fx * fx + fy * fy);
+
+            float angle = atan2(-fy, -fx) / CV_PI;
+            float fk = (angle + 1.0) / 2.0 * (colorwheel.size()-1);
+            int k0 = (int)fk;
+            int k1 = (k0 + 1) % colorwheel.size();
+            float f = fk - k0;
+            //f = 0; // uncomment to see original color wheel
+
+            for (int b = 0; b < 3; b++)
+            {
+                float col0 = colorwheel[k0][b] / 255.0;
+                float col1 = colorwheel[k1][b] / 255.0;
+                float col = (1 - f) * col0 + f * col1;
+                if (rad <= 1)
+                    col = 1 - rad * (1 - col); // increase saturation with radius
+                else
+                    col *= .75; // out of range
+                data[2 - b] = (int)(255.0 * col);
+            }
+        }
+    }
+}
+
+float ds_factor = 0.75;
+
+static void help()
+{
+    cout <<
+            "\nDense optical flow algorithm by Gunnar Farneback\n"
+            "Usage:\n"
+            "$ ./main\n"
+            "This reads input from the webcam\n" << endl;
+}
+
+static void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,
+                    double, const Scalar& color)
+{
+    for(int y = 0; y < cflowmap.rows; y += step)
+        for(int x = 0; x < cflowmap.cols; x += step)
+        {
+            const Point2f& fxy = flow.at<Point2f>(y, x);
+            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),
+                 color);
+            circle(cflowmap, Point(x,y), 2, color, -1);
+        }
+}
+
+int opticialFlow()
+{
+//    // The change in position of the camera
+//    float dx, dy;
+//    dx = dy = 0;
+
+//    // The change in position for a single iteration
+//    float ddx, ddy;
+
+//    Mat cur_frame;
+//    Mat cur_fgray;
+//    Mat old_fgray;
+
+////#ifdef OPTFLOW_DISPLAY
+//    // Optical flow overlay
+//    Mat overlay;
+////#endif
+
+//    // Corner points being tracked
+//    vector<Point2f> old_p, cur_p, found_p;
+
+//    vector<unsigned char> status;
+//    vector<float> err;
+
+//    // Lucas Kanad Optical Flow parameters
+//    Size winSize(LUCASKANAD_WINDOW_SIZE_X, LUCASKANAD_WINDOW_SIZE_Y);
+//    TermCriteria criteria(TermCriteria::EPS | TermCriteria::COUNT, 10, 0.03);
+
+//    VideoCapture cap(-1);
+//    if (!cap.isOpened()) {
+//        cout << "Failed to open camera.\n";
+//        return 1;
+//    }
+
+//    while (true) {
+//        // Get a new frame
+//        cap >> cur_frame;
+//        cvtColor(cur_frame, old_fgray, CV_BGR2GRAY);
+
+//        // Get new corners from this frame
+//        goodFeaturesToTrack(old_fgray,
+//                            old_p,
+//                            SHITOMASI_MAX_CORNERS,
+//                            SHITOMASI_QUALITY_LEVEL,
+//                            SHITOMASI_MIN_DISTANCE,
+//                            noArray(),
+//                            SHITOMASI_BLOCK_SIZE);
+
+//        // If we didn't get get feature to track, try again
+//        if (old_p.size() == 0) {
+//            continue;
+//        }
+
+////#ifdef OPTFLOW_DISPLAY
+//        // Reset the mask
+//        overlay = Mat::zeros(cur_frame.size(), cur_frame.type());
+////#endif
+
+//        // Track these corners over the next few frames
+//        for (int i=0; i<ITERATIONS_PER_SEED; i++) {
+
+//            // Get a new frame
+//            cap >> cur_frame;
+//            cvtColor(cur_frame, cur_fgray, CV_BGR2GRAY);
+
+//            // Track corners over the current frame
+//            calcOpticalFlowPyrLK(old_fgray,
+//                                 cur_fgray,
+//                                 old_p,
+//                                 cur_p,
+//                                 status,
+//                                 err,
+//                                 winSize,
+//                                 LUCASKANAD_MAX_LEVEL,
+//                                 criteria);
+
+//            found_p.clear();
+//            ddx = ddy = 0;
+
+//            // Iterate over the corners
+//            for (int k=0; k<status.size(); k++) {
+//                if (status[k] > 0) {
+//                    // If the status value is 1 then this corner was found so we add it to the found list
+//                    found_p.push_back(cur_p[k]);
+
+//                    // Add to the running sum of ddx/ddy
+//                    ddx += cur_p[k].x - old_p[k].x;
+//                    ddy += cur_p[k].y - old_p[k].y;
+
+////#ifdef OPTFLOW_DISPLAY
+//                    // Draw the optical flow lines onto the mask
+//                    circle(cur_frame, cur_p[k], OVERLAY_CIRCLE_RADIUS, color, -1);
+//                    line(overlay, old_p[k], cur_p[k], color);
+////#endif
+//                }
+//            }
+
+//            // If no corners were tracked this iteration, reseed
+//            if (found_p.size() == 0) {
+//                break;
+//            }
+
+//            // Calculate the change in position for this iteration
+//            dx += (ddx / found_p.size()) * multiplier;
+//            dy += (ddy / found_p.size()) * multiplier;
+
+//            // Use all the tracked points in the next iteration (points that couldn't be tracked are thrown out)
+//            old_p.clear();
+//            old_p = found_p;
+
+//            cout << "dx: " << dx << " dy: " << dy << endl;
+
+////#ifdef OPTFLOW_DISPLAY
+//            // Display frame
+//            add(overlay, cur_frame, cur_frame);
+//            imshow("frame", cur_frame);
+//            if(waitKey(30) >= 0) break;
+////#endif
+//        }
+//    }
+
+//    return 0;
+//    VideoCapture cap;
+//        cap.open(0);
+//        //cap.open("test_02.wmv");
+
+//        if( !cap.isOpened() )
+//            return -1;
+
+//        Mat prevgray, gray, flow, cflow, frame;
+//        namedWindow("flow", 1);
+
+//        Mat motion2color;
+
+//        for(;;)
+//        {
+//            double t = (double)cvGetTickCount();
+
+//            cap >> frame;
+//            cvtColor(frame, gray, CV_BGR2GRAY);
+//            imshow("original", frame);
+
+//            if( prevgray.data )
+//            {
+//                calcOpticalFlowFarneback(prevgray, gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+//                motionToColor(flow, motion2color);
+//                imshow("flow", motion2color);
+//            }
+//            if(waitKey(10)>=0)
+//                break;
+//            std::swap(prevgray, gray);
+
+//            t = (double)cvGetTickCount() - t;
+//            cout << "cost time: " << t / ((double)cvGetTickFrequency()*1000.) << endl;
+//        }
+//        return 0;
+    VideoCapture cap(0);
+    help();
+    if( !cap.isOpened() )
+        return -1;
+
+    Mat prevgray, gray, flow, cflow, frame;
+    namedWindow("flow", 1);
+
+    for(;;)
+    {
+        cap >> frame;
+        resize(frame, frame, Size(), ds_factor, ds_factor, INTER_NEAREST);
+        cvtColor(frame, gray, CV_BGR2GRAY);
+
+        if( prevgray.data )
+        {
+            calcOpticalFlowFarneback(prevgray, gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+            cvtColor(prevgray, cflow, CV_GRAY2BGR);
+            drawOptFlowMap(flow, cflow, 16, 1.5, CV_RGB(0, 255, 0));
+            imshow("flow", cflow);
+        }
+        if(waitKey(30)>=0)
+            break;
+        std::swap(prevgray, gray);
+    }
+}
+
+
+
 int main(){
 //    interestPointsVideoDetect();
 //    colorDetect();
-    cannyEdgeDetect();
+//    cannyEdgeDetect();
+    opticialFlow();
 }
 
 
