@@ -19,6 +19,16 @@ opencv2/nonfree/nonfree.hpp
 /home/leningli/Desktop/Object-recognition/src/opencv2/nonfree/nonfree.hpp
 opencv2/imgproc/imgproc.hpp
 /home/leningli/Desktop/Object-recognition/src/opencv2/imgproc/imgproc.hpp
+opencv2/opencv.hpp
+/home/leningli/Desktop/Object-recognition/src/opencv2/opencv.hpp
 iostream
+-
+sstream
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/imgproc/imgproc.hpp
+/home/leningli/Desktop/Object-recognition/src/opencv2/imgproc/imgproc.hpp
+opencv2/video/background_segm.hpp
 -
 

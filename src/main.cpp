@@ -11,13 +11,81 @@
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/nonfree/nonfree.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/opencv.hpp"
 #include <iostream>
+#include <sstream>
+#include <opencv2/highgui/highgui.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/video/background_segm.hpp>
+
 
 #define MAX_COUNT 250
 #define DELAY_T 20
 #define PI 3.1415
 
+#ifdef _DEBUG
+#pragma comment(lib, "opencv_core247d.lib")
+#pragma comment(lib, "opencv_imgproc247d.lib")   //MAT processing
+#pragma comment(lib, "opencv_objdetect247d.lib") //HOGDescriptor
+//#pragma comment(lib, "opencv_gpu247d.lib")
+//#pragma comment(lib, "opencv_features2d247d.lib")
+#pragma comment(lib, "opencv_highgui247d.lib")
+#pragma comment(lib, "opencv_ml247d.lib")
+//#pragma comment(lib, "opencv_stitching247d.lib");
+//#pragma comment(lib, "opencv_nonfree247d.lib");
+#pragma comment(lib, "opencv_video247d.lib")
+#else
+#pragma comment(lib, "opencv_core247.lib")
+#pragma comment(lib, "opencv_imgproc247.lib")
+#pragma comment(lib, "opencv_objdetect247.lib")
+//#pragma comment(lib, "opencv_gpu247.lib")
+//#pragma comment(lib, "opencv_features2d247.lib")
+#pragma comment(lib, "opencv_highgui247.lib")
+#pragma comment(lib, "opencv_ml247.lib")
+//#pragma comment(lib, "opencv_stitching247.lib");
+//#pragma comment(lib, "opencv_nonfree247.lib");
+#pragma comment(lib, "opencv_video247d.lib")
+#endif
+
+// General settings
+#define Z_DEPTH 133.4f // cm
+#define FOCAL_LENGTH .00342f // cm
+#define LENGTH_PER_PIXEL 0.0000049f // cm
+#define ITERATIONS_PER_SEED 5
+
+// Display settings
+// Defining "OPTFLOW_DISPLAY" (#define OPTFLOW_DISPLAY) enables graphical output for this application. This normally shouldn't be done in the source code but rather done in the IDE or Makefile as to not interfere with different build methods.
+#define OVERLAY_CIRCLE_RADIUS 5
+#define OVERLAY_COLOR_R 255
+#define OVERLAY_COLOR_B 0
+#define OVERLAY_COLOR_G 0
+
+// Shi-Tomasi settings. Used when finding the seed corners
+#define SHITOMASI_MAX_CORNERS 100
+#define SHITOMASI_QUALITY_LEVEL 0.3f
+#define SHITOMASI_MIN_DISTANCE 7
+#define SHITOMASI_BLOCK_SIZE 7
+
+// Lucas-Kanad Optical Flow settings. Used to track the seed corners until next seed.
+#define LUCASKANAD_WINDOW_SIZE_X 15
+#define LUCASKANAD_WINDOW_SIZE_Y 15
+#define LUCASKANAD_MAX_LEVEL 2
+
+const cv::Scalar color(OVERLAY_COLOR_B, OVERLAY_COLOR_G, OVERLAY_COLOR_R);
+const double multiplier = (Z_DEPTH / FOCAL_LENGTH) * LENGTH_PER_PIXEL;
+
+#define UNKNOWN_FLOW_THRESH 1e9
+
 /// Global variables
+cv::Mat erosion_dst, dilation_dst;
+
+int erosion_elem = 0;
+int erosion_size = 10;
+int dilation_elem = 0;
+int dilation_size = 0;
+int const max_elem = 2;
+int const max_kernel_size = 21;
+
 
 cv::Mat src, src_gray;
 cv::Mat dst, detected_edges;
@@ -28,6 +96,7 @@ int const max_lowThreshold = 100;
 int ratio = 3;
 int kernel_size = 3;
 char* window_name = "Edge Map";
+float ds_factor = 0.75;
 
 /**
  * @function CannyThreshold
@@ -48,14 +117,14 @@ void CannyThreshold(int, void*)
   cv::imshow( window_name, dst );
  }
 
-void cannyEdgeDetect()
+int cannyEdgeDetect()
 {
     cv::VideoCapture cap(0);                                    //capture the video from web cam
 
     if ( !cap.isOpened() )                                      // if not success, exit program
     {
          std::cout << "Cannot open the web cam" << std::endl;
-         return;
+         return -1;
     }
 
     // Load input image
@@ -71,39 +140,40 @@ void cannyEdgeDetect()
              break;
          }
 
-     /// Create a matrix of the same type and size as src (for dst)
-     dst.create( src.size(), src.type() );
+        /// Create a matrix of the same type and size as src (for dst)
+        dst.create( src.size(), src.type() );
 
-     /// Convert the image to grayscale
-     cv::cvtColor( src, src_gray, CV_BGR2GRAY );
+        /// Convert the image to grayscale
+        cv::cvtColor( src, src_gray, CV_BGR2GRAY );
 
-     /// Create a window
-     cv::namedWindow( window_name, CV_WINDOW_AUTOSIZE );
+        /// Create a window
+        cv::namedWindow( window_name, CV_WINDOW_AUTOSIZE );
 
-     /// Create a Trackbar for user to enter threshold
-     cv::createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
+        /// Create a Trackbar for user to enter threshold
+        cv::createTrackbar( "Min Threshold:", window_name, &lowThreshold, max_lowThreshold, CannyThreshold );
 
-     /// Show the image
-     CannyThreshold(0, 0);
+        /// Show the image
+        CannyThreshold(0, 0);
 
-     if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
-     {
+        if (cv::waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+        {
          std::cout << "esc key is pressed by user" << std::endl;
          break;
-     }
- }
-
+        }
+    }
+    return 0;
 }
 
 
-void colorDetect( )
+
+int colorDetect( )
 {
     cv::VideoCapture cap(0);                                    //capture the video from web cam
 
     if ( !cap.isOpened() )                                      // if not success, exit program
     {
          std::cout << "Cannot open the web cam" << std::endl;
-         return;
+         return -1;
     }
 
     // Load input image
@@ -172,7 +242,7 @@ void colorDetect( )
             break;
         }
     }
-
+    return 0;
 }
 
 static void goodMatchingPoints(cv::Mat descriptors_1 , cv::Mat descriptors_2, std::vector<cv::DMatch>& matches, std::vector<cv::DMatch>& good_matches )
@@ -363,6 +433,290 @@ int interestPointsVideoDetect()
     return 0;
 }
 
+int backgroundSubstraction()
+{
+
+    //global variables
+    cv::Mat frame; //current frame
+    cv::Mat fgMaskMOG; //fg mask generated by MOG method
+    cv::Mat fgMaskMOG2; //fg mask fg mask generated by MOG2 method
+    cv::Mat fgMaskGMG; //fg mask fg mask generated by MOG2 method
+
+
+    cv::Ptr< cv::BackgroundSubtractor> pMOG; //MOG Background subtractor
+    cv::Ptr< cv::BackgroundSubtractor> pMOG2; //MOG2 Background subtractor
+    cv::Ptr< cv::BackgroundSubtractorGMG> pGMG; //MOG2 Background subtractor
+
+
+
+    pMOG = new cv::BackgroundSubtractorMOG();
+    pMOG2 = new cv::BackgroundSubtractorMOG2();
+    pGMG = new cv::BackgroundSubtractorGMG();
+
+
+    //  char fileName[100] = "/home/leningli/Desktop/Object-recognition/images/cctv.mp4";
+    //  VideoCapture stream1(fileName);   //0 is the id of video device.0 if you have only one camera
+
+     cv::VideoCapture stream1(0);                                    //capture the video from web cam
+
+     if ( !stream1.isOpened() )                                      // if not success, exit program
+     {
+          std::cout << "Cannot open the web cam" << std::endl;
+          return -1;
+     }
+
+    cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1,1) );
+
+    //unconditional loop
+    while (true) {
+
+
+    if(!(stream1.read(frame))) //get one frame form video
+    break;
+
+     resize(frame, frame, cv::Size(frame.size().width, frame.size().height) );
+
+    pMOG->operator()(frame, fgMaskMOG);
+
+    pMOG2->operator()(frame, fgMaskMOG2);
+
+    pGMG->operator()(frame, fgMaskGMG);
+    //morphologyEx(fgMaskGMG, fgMaskGMG, CV_MOP_OPEN, element);
+
+
+    // create an image like frame but initialized to zeros
+    cv::Mat MOGcolor = cv::Mat::zeros(frame.size(), frame.type());
+    cv::Mat MOG2color = cv::Mat::zeros(frame.size(), frame.type());
+    cv::Mat GMGcolor = cv::Mat::zeros(frame.size(), frame.type());
+    // copy color objects into the new image using mask
+    frame.copyTo(MOGcolor, fgMaskMOG);
+    frame.copyTo(MOG2color, fgMaskMOG2);
+    frame.copyTo(GMGcolor, fgMaskGMG);
+
+    cv::imshow("Origin", frame);
+    cv::imshow("MOG", MOGcolor);
+    cv::imshow("MOG2", MOG2color);
+    cv::imshow("GMG", GMGcolor);
+
+
+    if (cv::waitKey(27) >= 0)
+    break;
+    }
+
+    return 0;
+}
+
+int blend()
+{
+    cv::Mat backgroundImg, outputImg;
+    double alpha = 0.5;
+    backgroundImg = cv::imread("../images/barbara.png", CV_LOAD_IMAGE_COLOR);
+    cv::VideoCapture cap(0);                                    //capture the video from web cam
+
+    if ( !cap.isOpened() )                                      // if not success, exit program
+    {
+         std::cout << "Cannot open the web cam" << std::endl;
+         return -1;
+    }
+
+    // Load input image
+
+    while(true)
+    {
+        cv::Mat inputImg2;
+
+        bool bSuccess = cap.read(inputImg2);                    // read a new frame from video
+
+         if (!bSuccess)                                         //if not success, break loop
+        {
+             std::cout << "Cannot read a frame from video stream" << std::endl;
+             break;
+        }
+
+         if(!backgroundImg.data || !inputImg2.data)
+         {
+             std::cout << "Error: input file opening failure!"<<std::cout;
+         }
+         if(!(alpha >= 0.0 && alpha <= 1.0))
+         {
+             std::cout << "Error: Alpha should be between 0.0 and 1.0"<<std::cout;
+         }
+
+         //transforming image
+     resize(backgroundImg, backgroundImg, cv::Size(inputImg2.size().width, inputImg2.size().height) );
+         cv::add(backgroundImg, inputImg2, outputImg);
+
+         //displaying output image
+         cv::namedWindow("Output Image", CV_WINDOW_AUTOSIZE);
+         cv::imshow("Output Image", outputImg);
+
+         //waiting for signal to close app
+         if (cv::waitKey(27) >= 0)
+          break;
+    }
+    return 0;
+}
+
+int test1()
+{
+
+    //global variables
+    cv::Mat frame; //current frame
+
+    cv::Mat fgMaskGMG; //fg mask fg mask generated by MOG2 method
+    cv::Mat backgroundImg;
+    cv::Mat outputImg;
+    backgroundImg = cv::imread("../images/barbara.png", CV_LOAD_IMAGE_COLOR);
+
+    cv::Ptr< cv::BackgroundSubtractorGMG> pGMG; //MOG2 Background subtractor
+
+    pGMG = new cv::BackgroundSubtractorGMG();
+
+     cv::VideoCapture stream1(0);                                    //capture the video from web cam
+
+     if ( !stream1.isOpened() )                                      // if not success, exit program
+     {
+          std::cout << "Cannot open the web cam" << std::endl;
+          return -1;
+     }
+
+    cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1,1) );
+
+    //unconditional loop
+    while (true) {
+
+
+    if(!(stream1.read(frame))) //get one frame form video
+    break;
+
+    resize(frame, frame, cv::Size(frame.size().width, frame.size().height) );
+
+
+
+    pGMG->operator()(frame, fgMaskGMG);
+    //morphologyEx(fgMaskGMG, fgMaskGMG, CV_MOP_OPEN, element);
+
+
+    // create an image like frame but initialized to zeros
+
+    cv::Mat GMGcolor = cv::Mat::zeros(frame.size(), frame.type());
+    // copy color objects into the new image using mask
+
+    frame.copyTo(GMGcolor, fgMaskGMG);
+    resize(backgroundImg, backgroundImg, cv::Size(frame.size().width, frame.size().height) );
+    cv::add(backgroundImg, GMGcolor, outputImg);
+
+
+    cv::imshow("Origin", frame);
+
+    cv::imshow("GMG", GMGcolor);
+
+    cv::imshow("blended", outputImg);
+
+
+    if (cv::waitKey(27) >= 0)
+    break;
+    }
+    return 0;
+}
+
+int test2()
+{
+    //global variables
+    cv::Mat frame; //current frame
+
+    cv::Mat fgMaskGMG; //fg mask fg mask generated by MOG2 method
+
+    cv::Ptr< cv::BackgroundSubtractorGMG> pGMG; //MOG2 Background subtractor
+
+
+    pGMG = new cv::BackgroundSubtractorGMG();
+
+
+    //  char fileName[100] = "/home/leningli/Desktop/Object-recognition/images/cctv.mp4";
+    //  VideoCapture stream1(fileName);   //0 is the id of video device.0 if you have only one camera
+
+     cv::VideoCapture stream1(0);                                    //capture the video from web cam
+
+     if ( !stream1.isOpened() )                                      // if not success, exit program
+     {
+          std::cout << "Cannot open the web cam" << std::endl;
+          return -1;
+     }
+
+    cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1,1) );
+
+    //unconditional loop
+    while (true) {
+
+
+    if(!(stream1.read(frame))) //get one frame form video
+    break;
+
+     resize(frame, frame, cv::Size(frame.size().width, frame.size().height) );
+
+
+    pGMG->operator()(frame, fgMaskGMG);
+    //morphologyEx(fgMaskGMG, fgMaskGMG, CV_MOP_OPEN, element);
+
+
+    // create an image like frame but initialized to zeros
+    cv::Mat GMGcolor = cv::Mat::zeros(frame.size(), frame.type());
+    // copy color objects into the new image using mask
+    frame.copyTo(GMGcolor, fgMaskGMG);
+
+    cv::imshow("Origin", frame);
+    cv::imshow("GMG", GMGcolor);
+
+    cv::Mat orig_image = GMGcolor.clone();
+
+    cv::medianBlur(GMGcolor, GMGcolor, 3);
+
+    // Convert input image to HSV
+    cv::Mat hsv_image;
+    cv::cvtColor(GMGcolor, hsv_image, cv::COLOR_BGR2HSV);
+
+    // Threshold the HSV image, keep only the black pixels
+    cv::Mat lower_black_hue_range;
+    cv::Mat upper_black_hue_range;
+    cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_black_hue_range);
+    cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_black_hue_range);
+
+    // Combine the above two images
+    cv::Mat black_hue_image;
+    cv::addWeighted(lower_black_hue_range, 1.0, upper_black_hue_range, 1.0, 0.0, black_hue_image);
+
+    cv::GaussianBlur(black_hue_image, black_hue_image, cv::Size(9, 9), 2, 2);
+
+    // Use the Hough transform to detect circles in the combined threshold image
+    std::vector<cv::Vec3f> circles;
+    cv::HoughCircles(black_hue_image, circles, CV_HOUGH_GRADIENT, 1, black_hue_image.rows/8, 100, 20, 0, 0);
+
+    // Loop over all detected circles and outline them on the original image
+
+    for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle) {
+        cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
+        int radius = std::round(circles[current_circle][2]);
+
+        cv::circle(orig_image, center, radius, cv::Scalar(0, 255, 0), 5);
+    }
+
+    // Show images
+    cv::namedWindow("Threshold lower image", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Threshold lower image", lower_black_hue_range);
+    cv::namedWindow("Threshold upper image", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Threshold upper image", upper_black_hue_range);
+    cv::namedWindow("Combined threshold images", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Combined threshold images", black_hue_image);
+    cv::namedWindow("Detected black circles on the input image", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Detected black circles on the input image", orig_image);
+
+
+    if (cv::waitKey(27) >= 0)
+    break;
+    }
+}
+
 //void opticialFlow()
 //{
 //    //////////////////////////////////////////////////////////////////////////
@@ -532,39 +886,8 @@ int interestPointsVideoDetect()
 
 //     //////////////////////////////////////////////////////////////////////////
 //}
-using namespace cv;
-using namespace std;
 
-// General settings
-#define Z_DEPTH 133.4f // cm
-#define FOCAL_LENGTH .00342f // cm
-#define LENGTH_PER_PIXEL 0.0000049f // cm
-#define ITERATIONS_PER_SEED 5
-
-// Display settings
-// Defining "OPTFLOW_DISPLAY" (#define OPTFLOW_DISPLAY) enables graphical output for this application. This normally shouldn't be done in the source code but rather done in the IDE or Makefile as to not interfere with different build methods.
-#define OVERLAY_CIRCLE_RADIUS 5
-#define OVERLAY_COLOR_R 255
-#define OVERLAY_COLOR_B 0
-#define OVERLAY_COLOR_G 0
-
-// Shi-Tomasi settings. Used when finding the seed corners
-#define SHITOMASI_MAX_CORNERS 100
-#define SHITOMASI_QUALITY_LEVEL 0.3f
-#define SHITOMASI_MIN_DISTANCE 7
-#define SHITOMASI_BLOCK_SIZE 7
-
-// Lucas-Kanad Optical Flow settings. Used to track the seed corners until next seed.
-#define LUCASKANAD_WINDOW_SIZE_X 15
-#define LUCASKANAD_WINDOW_SIZE_Y 15
-#define LUCASKANAD_MAX_LEVEL 2
-
-const Scalar color(OVERLAY_COLOR_B, OVERLAY_COLOR_G, OVERLAY_COLOR_R);
-const double multiplier = (Z_DEPTH / FOCAL_LENGTH) * LENGTH_PER_PIXEL;
-
-#define UNKNOWN_FLOW_THRESH 1e9
-
-void makecolorwheel(vector<Scalar> &colorwheel)
+void makecolorwheel(std::vector<cv::Scalar> &colorwheel)
 {
     int RY = 15;
     int YG = 6;
@@ -575,20 +898,20 @@ void makecolorwheel(vector<Scalar> &colorwheel)
 
     int i;
 
-    for (i = 0; i < RY; i++) colorwheel.push_back(Scalar(255,       255*i/RY,     0));
-    for (i = 0; i < YG; i++) colorwheel.push_back(Scalar(255-255*i/YG, 255,       0));
-    for (i = 0; i < GC; i++) colorwheel.push_back(Scalar(0,         255,      255*i/GC));
-    for (i = 0; i < CB; i++) colorwheel.push_back(Scalar(0,         255-255*i/CB, 255));
-    for (i = 0; i < BM; i++) colorwheel.push_back(Scalar(255*i/BM,      0,        255));
-    for (i = 0; i < MR; i++) colorwheel.push_back(Scalar(255,       0,        255-255*i/MR));
+    for (i = 0; i < RY; i++) colorwheel.push_back(cv::Scalar(255,       255*i/RY,     0));
+    for (i = 0; i < YG; i++) colorwheel.push_back(cv::Scalar(255-255*i/YG, 255,       0));
+    for (i = 0; i < GC; i++) colorwheel.push_back(cv::Scalar(0,         255,      255*i/GC));
+    for (i = 0; i < CB; i++) colorwheel.push_back(cv::Scalar(0,         255-255*i/CB, 255));
+    for (i = 0; i < BM; i++) colorwheel.push_back(cv::Scalar(255*i/BM,      0,        255));
+    for (i = 0; i < MR; i++) colorwheel.push_back(cv::Scalar(255,       0,        255-255*i/MR));
 }
 
-void motionToColor(Mat flow, Mat &color)
+void motionToColor(cv::Mat flow, cv::Mat &color)
 {
     if (color.empty())
         color.create(flow.rows, flow.cols, CV_8UC3);
 
-    static vector<Scalar> colorwheel; //Scalar r,g,b
+    static std::vector<cv::Scalar> colorwheel; //Scalar r,g,b
     if (colorwheel.empty())
         makecolorwheel(colorwheel);
 
@@ -600,7 +923,7 @@ void motionToColor(Mat flow, Mat &color)
     {
         for (int j = 0; j < flow.cols; ++j)
         {
-            Vec2f flow_at_point = flow.at<Vec2f>(i, j);
+            cv::Vec2f flow_at_point = flow.at<cv::Vec2f>(i, j);
             float fx = flow_at_point[0];
             float fy = flow_at_point[1];
             if ((fabs(fx) >  UNKNOWN_FLOW_THRESH) || (fabs(fy) >  UNKNOWN_FLOW_THRESH))
@@ -615,7 +938,7 @@ void motionToColor(Mat flow, Mat &color)
         for (int j = 0; j < flow.cols; ++j)
         {
             uchar *data = color.data + color.step[0] * i + color.step[1] * j;
-            Vec2f flow_at_point = flow.at<Vec2f>(i, j);
+            cv::Vec2f flow_at_point = flow.at<cv::Vec2f>(i, j);
 
             float fx = flow_at_point[0] / maxrad;
             float fy = flow_at_point[1] / maxrad;
@@ -648,27 +971,26 @@ void motionToColor(Mat flow, Mat &color)
     }
 }
 
-float ds_factor = 0.75;
 
 static void help()
 {
-    cout <<
+    std::cout <<
             "\nDense optical flow algorithm by Gunnar Farneback\n"
             "Usage:\n"
             "$ ./main\n"
-            "This reads input from the webcam\n" << endl;
+            "This reads input from the webcam\n" << std::endl;
 }
 
-static void drawOptFlowMap(const Mat& flow, Mat& cflowmap, int step,
-                    double, const Scalar& color)
+static void drawOptFlowMap(const cv::Mat& flow, cv::Mat& cflowmap, int step,
+                    double, const cv::Scalar& color)
 {
     for(int y = 0; y < cflowmap.rows; y += step)
         for(int x = 0; x < cflowmap.cols; x += step)
         {
-            const Point2f& fxy = flow.at<Point2f>(y, x);
-            line(cflowmap, Point(x,y), Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),
+            const cv::Point2f& fxy = flow.at<cv::Point2f>(y, x);
+            line(cflowmap, cv::Point(x,y), cv::Point(cvRound(x+fxy.x), cvRound(y+fxy.y)),
                  color);
-            circle(cflowmap, Point(x,y), 2, color, -1);
+            circle(cflowmap, cv::Point(x,y), 2, color, -1);
         }
 }
 
@@ -828,41 +1150,233 @@ int opticalFlow()
 //            cout << "cost time: " << t / ((double)cvGetTickFrequency()*1000.) << endl;
 //        }
 //        return 0;
-    VideoCapture cap(0);
+    cv::VideoCapture cap(0);
     help();
     if( !cap.isOpened() )
-        return -1;
+    {
+         std::cout << "Cannot open the web cam" << std::endl;
+         return -1;
+    }
 
-    Mat prevgray, gray, flow, cflow, frame;
-    namedWindow("flow", 1);
+    cv::Mat prevgray, gray, flow, cflow, frame;
+    cv::namedWindow("flow", 1);
 
     for(;;)
     {
         cap >> frame;
-        resize(frame, frame, Size(), ds_factor, ds_factor, INTER_NEAREST);
-        cvtColor(frame, gray, CV_BGR2GRAY);
+        cv::resize(frame, frame, cv::Size(), ds_factor, ds_factor, cv::INTER_NEAREST);
+        cv::cvtColor(frame, gray, CV_BGR2GRAY);
 
         if( prevgray.data )
         {
             calcOpticalFlowFarneback(prevgray, gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
             cvtColor(prevgray, cflow, CV_GRAY2BGR);
             drawOptFlowMap(flow, cflow, 16, 1.5, CV_RGB(0, 255, 0));
-            imshow("flow", cflow);
+            cv::imshow("flow", cflow);
         }
-        if(waitKey(30)>=0)
+        if(cv::waitKey(30)>=0)
             break;
         std::swap(prevgray, gray);
     }
 }
 
 
+/**  @function Erosion  */
+void Erosion( int, void* )
+{
+  int erosion_type;
+  if( erosion_elem == 0 ){ erosion_type = cv::MORPH_RECT; }
+  else if( erosion_elem == 1 ){ erosion_type = cv::MORPH_CROSS; }
+  else if( erosion_elem == 2) { erosion_type = cv::MORPH_ELLIPSE; }
+
+  cv::Mat element = cv::getStructuringElement( erosion_type,
+                                       cv::Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                       cv:: Point( erosion_size, erosion_size ) );
+
+  /// Apply the erosion operation
+  cv::erode( src, erosion_dst, element );
+  cv::imshow( "Erosion Demo", erosion_dst );
+}
+
+/** @function Dilation */
+void Dilation( int, void* )
+{
+  int dilation_type;
+  if( dilation_elem == 0 ){ dilation_type = cv::MORPH_RECT; }
+  else if( dilation_elem == 1 ){ dilation_type = cv::MORPH_CROSS; }
+  else if( dilation_elem == 2) { dilation_type =cv::MORPH_ELLIPSE; }
+
+  cv::Mat element = cv::getStructuringElement( dilation_type,
+                                       cv::Size( 2*dilation_size + 1, 2*dilation_size+1 ),
+                                       cv::Point( dilation_size, dilation_size ) );
+  /// Apply the dilation operation
+  cv::dilate( src, dilation_dst, element );
+  cv::imshow( "Dilation Demo", dilation_dst );
+}
+
+int erosion_main()
+{
+  /// Load an image
+  src = cv::imread("../images/5.jpg", CV_LOAD_IMAGE_COLOR);
+
+  if( !src.data )
+  { return -1; }
+
+  /// Create windows
+  cv::namedWindow( "Erosion Demo", CV_WINDOW_AUTOSIZE );
+  cv::namedWindow( "Dilation Demo", CV_WINDOW_AUTOSIZE );
+  cvMoveWindow( "Dilation Demo", src.cols, 0 );
+
+  /// Create Erosion Trackbar
+  cv::createTrackbar( "Element:\n 0: Rect \n 1: Cross \n 2: Ellipse", "Erosion Demo",
+                  &erosion_elem, max_elem,
+                  Erosion );
+
+  cv::createTrackbar( "Kernel size:\n 2n +1", "Erosion Demo",
+                  &erosion_size, max_kernel_size,
+                  Erosion );
+
+  /// Create Dilation Trackbar
+  cv::createTrackbar( "Element:\n 0: Rect \n 1: Cross \n 2: Ellipse", "Dilation Demo",
+                  &dilation_elem, max_elem,
+                  Dilation );
+
+  cv::createTrackbar( "Kernel size:\n 2n +1", "Dilation Demo",
+                  &dilation_size, max_kernel_size,
+                  Dilation );
+
+  /// Default start
+  Erosion( 0, 0 );
+  Dilation( 0, 0 );
+
+  cv::waitKey(0);
+  return 0;
+}
+
+int test3()
+{
+
+    //global variables
+    cv::Mat frame; //current frame
+
+    cv::Mat fgMaskGMG; //fg mask fg mask generated by MOG2 method
+
+    cv::Ptr< cv::BackgroundSubtractorGMG> pGMG; //MOG2 Background subtractor
+
+
+    pGMG = new cv::BackgroundSubtractorGMG();
+
+
+    //  char fileName[100] = "/home/leningli/Desktop/Object-recognition/images/cctv.mp4";
+    //  VideoCapture stream1(fileName);   //0 is the id of video device.0 if you have only one camera
+
+     cv::VideoCapture stream1(0);                                    //capture the video from web cam
+
+     if ( !stream1.isOpened() )                                      // if not success, exit program
+     {
+          std::cout << "Cannot open the web cam" << std::endl;
+          return -1;
+     }
+
+    cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3), cv::Point(1,1) );
+
+    //unconditional loop
+    while (true) {
+
+
+    if(!(stream1.read(frame))) //get one frame form video
+    break;
+
+     resize(frame, frame, cv::Size(frame.size().width, frame.size().height) );
+
+
+    pGMG->operator()(frame, fgMaskGMG);
+    //morphologyEx(fgMaskGMG, fgMaskGMG, CV_MOP_OPEN, element);
+
+
+    // create an image like frame but initialized to zeros
+    cv::Mat GMGcolor = cv::Mat::zeros(frame.size(), frame.type());
+    // copy color objects into the new image using mask
+    frame.copyTo(GMGcolor, fgMaskGMG);
+
+    cv::imshow("Origin", frame);
+    cv::imshow("GMG", GMGcolor);
+
+    /* Do the erosion after substract the background for reducing noise */
+    int erosion_type = cv::MORPH_ELLIPSE;
+
+    cv::Mat element = cv::getStructuringElement( erosion_type,
+                                         cv::Size( 2*erosion_size + 1, 2*erosion_size+1 ),
+                                         cv:: Point( erosion_size, erosion_size ) );
+
+    /// Apply the erosion operation
+    cv::Mat afterErosion;
+    cv::erode( GMGcolor, afterErosion, element );
+    cv::imshow( "After Erosion", afterErosion );
+
+    /* Done with the erosion and stract to tack */
+
+    cv::Mat orig_image = afterErosion.clone();
+
+    cv::medianBlur(afterErosion, afterErosion, 3);
+
+    // Convert input image to HSV
+    cv::Mat hsv_image;
+    cv::cvtColor(afterErosion, hsv_image, cv::COLOR_BGR2HSV);
+
+    // Threshold the HSV image, keep only the black pixels
+    cv::Mat lower_black_hue_range;
+    cv::Mat upper_black_hue_range;
+    cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(10, 255, 255), lower_black_hue_range);
+    cv::inRange(hsv_image, cv::Scalar(160, 100, 100), cv::Scalar(179, 255, 255), upper_black_hue_range);
+
+    // Combine the above two images
+    cv::Mat black_hue_image;
+    cv::addWeighted(lower_black_hue_range, 1.0, upper_black_hue_range, 1.0, 0.0, black_hue_image);
+
+    cv::GaussianBlur(black_hue_image, black_hue_image, cv::Size(9, 9), 2, 2);
+
+    // Use the Hough transform to detect circles in the combined threshold image
+    std::vector<cv::Vec3f> circles;
+    cv::HoughCircles(black_hue_image, circles, CV_HOUGH_GRADIENT, 1, black_hue_image.rows/8, 100, 20, 0, 0);
+
+    // Loop over all detected circles and outline them on the original image
+    cv::Mat dst(orig_image.size(), orig_image.type(), cv::Scalar::all(0));
+    for(size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
+    {
+        cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
+        int radius = std::round(circles[current_circle][2]);
+        cv::circle(orig_image, center, radius, cv::Scalar(0, 255, 0), 5);
+
+        cv::Mat mask = cv::Mat::zeros( orig_image.rows, orig_image.cols, CV_8UC1 );
+        cv::circle( mask, center, radius, cv::Scalar(255,255,255), -1, 8, 0 ); //-1 means filled
+        orig_image.copyTo( dst, mask ); // copy values of img to dst if mask is > 0.
+
+    }
+
+    // Show images
+    cv::namedWindow("Detected black circles on the input image origin", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Detected black circles on the input image origin", orig_image);
+
+    cv::namedWindow("Detected black circles on the input image croped", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Detected black circles on the input image croped", dst);
+
+
+    if (cv::waitKey(27) >= 0)
+    break;
+    }
+}
+
 
 int main(){
 //    interestPointsVideoDetect();
 //    colorDetect();
 //    cannyEdgeDetect();
-    opticalFlow();
+//    opticalFlow();
+//    backgroundSubstraction();
+//    blend();
+//    test1();
+    test2();
+//    test3();
+//    erosion_main();
 }
-
-
-
